@@ -8,7 +8,7 @@
         body {
             background-color: wheat
         }
-        #map { height: 580px;}
+        #map { height: 580px; background-color:lightcoral;}
     </style>
      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -19,36 +19,34 @@
     <script src="./milehigh.js"></script>
 </head>
 <body>
-    <h1>Homework 2</h1>
-    <h2>by Sam Metcalf</h2>
+    <h1>My HTML file</h1>
     <div id="map"></div>
 </body>
 <script>
-    var map = L.map('map').setView([39.74397196672369, -105.02007721681444], 15);
+    var map = L.map('map').setView([39.744046212061264, -105.01960514808688], 15);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-    L.marker([39.74397196672369, -105.02007721681444]).addTo(map)
+    L.marker([35.9098, -79.049807]).addTo(map)
         .bindPopup('Hi')
         .openPopup
-        .addTo(map);
 
     // create custom icon variable
-    var broncos = L.icon({ // notice the L.icon which is a Leaflet object with properties
-        iconUrl: 'https://denverite.com/cdn-cgi/image/width=3840,quality=75,format=auto/https://wp-denverite.s3.amazonaws.com/wp-content/uploads/sites/4/2016/10/Denver_Broncos_logo.svg_.png',
+    var uncIcon = L.icon({ // notice the L.icon which is a Leaflet object with properties
+        iconUrl: 'https://wp-denverite.s3.amazonaws.com/wp-content/uploads/sites/4/2016/10/Denver_Broncos_logo.svg_.png',
         // this points to a jpg image obtained from the internet
         iconSize: [50,50], // size of the icon
         popupAnchor: [0,0] // where the icon is located relative to the lat lon of the point.
         });
 
-    var customPopup = "Mile High Stadium<br/><img src='https://denverite.com/cdn-cgi/image/width=3840,quality=75,format=auto/https://wp-denverite.s3.amazonaws.com/wp-content/uploads/sites/4/2016/10/Denver_Broncos_logo.svg_.png'width='100px'/>";
+    var customPopup = "UNC Well<br/><img src='https://identity.unc.edu/wp-content/uploads/sites/885/2019/01/Old_Well_mark.png'width='100px'/>";
     
     L.geoJSON(mileHighStadium, { // a
         pointToLayer: function (feature, latlng) { // b
-        return L.marker(latlng, {icon: broncos});}}) // c
+        return L.marker(latlng, {icon: uncIcon});}}) // c
         .bindPopup(customPopup) // d
         .addTo(map); //
 </script>

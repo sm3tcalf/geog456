@@ -1,1 +1,1 @@
-var mileHighStadium = {"type":"FeatureCollection","features":[{"type":"Feature","id":0,"geometry":{"type":"Point","coordinates":[-105.02007721681444, 39.74397196672369]},"properties":{"FID":0,"id":1,"descrip":"mile high stadium"}}]}
+var mileHighStadium = {"type":"FeatureCollection","features":[{"type":"Feature","id":0,"geometry":{"type":"Point","coordinates":[-105.01984118245949, 39.744004964595646]},"properties":{"FID":0,"id":1,"descrip":"mile high stadium"}}]}
