@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW4b</title>
+</head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<script src="./denverBID.js"></script>
+<style>
+    #map { height: 500px;  }
+
+    tr:nth-child(even) {
+        background-color: aliceblue;
+    }
+
+    tr:nth-child(odd) {
+        background-color: white;
+    }
+
+</style>
+<body style="background-color: powderblue;">
+    <h1>HW4b: Table from dataset</h1>
+    <h2>Business Improvement Districts in Denver, Colorado</h2>
+    <table id="mytable">
+        <tr>
+          <th>Name of District</th>
+          <th>Start Year</th>
+          <th>Name of Contact</th>
+        </tr>
+    </table>
+    <script>
+        // create a variable x to represent the table
+        var x = document.getElementById('mytable')
+
+        for (var i =0; i <data.features.length; i++){
+            // initialize new variables as columns for each new row to be created
+            var myNewRow = document.createElement('tr');
+            var myNewCell1 = document.createElement('td');
+            var myNewCell2 = document.createElement('td');
+            var myNewCell3 = document.createElement('td');
+        
+            startYear = data.features[i].properties.LEGAL_START_DATE.substring(12, 17)
+
+            myNewCell1.innerHTML = data.features[i].properties.DISTRICT_NAME;
+            myNewCell2.innerHTML = startYear;
+            myNewCell3.innerHTML = data.features[i].properties.CONTACT;
+        
+            // myNewCell2.innerHTML = Math.round([i].generation_gwh_2019 *100)/100;
+            // myNewCell2.innerHTML = checkType(data[i].generation_gwh_2019);
+            // myNewCell2.innerHTML = parseFloat(data[i].generation_gwh_2019).toFixed(2);
+            
+            //if(data.features[i].properties.LEGAL_START_DATE = )
+            if(startYear <= 2010){myNewCell2.style.backgroundColor = 'yellow'}
+            // Assign color using if statements 
+            // if(data[i].generation_gwh_2019 > 39.7 ){ myNewCell2.style.backgroundColor = 'yellow'}
+            // if(data[i].generation_gwh_2019 <= 39.7 ){ myNewCell2.style.backgroundColor = 'grey'}
+            
+            // Assign color using a function 
+            // myNewCell2.style.backgroundColor = getBackgroundColor(data[i].generation_gwh_2019)
+        
+            //Assign color using class
+            // myNewCell2.className = getClassName(data[i].generation_gwh_2019)
+        
+            myNewRow.append(myNewCell1);
+            myNewRow.append(myNewCell2);
+            myNewRow.append(myNewCell3);
+            x.append(myNewRow);
+        } // The loop ends 
+    </script>
+    <br>
+    <a href="../index.html">back</a>
+</body>
+</html>
