@@ -50,23 +50,9 @@ crossorigin=""></script>
             myNewCell1.innerHTML = data.features[i].properties.DISTRICT_NAME;
             myNewCell2.innerHTML = startYear;
             myNewCell3.innerHTML = data.features[i].properties.CONTACT;
-        
-            // myNewCell2.innerHTML = Math.round([i].generation_gwh_2019 *100)/100;
-            // myNewCell2.innerHTML = checkType(data[i].generation_gwh_2019);
-            // myNewCell2.innerHTML = parseFloat(data[i].generation_gwh_2019).toFixed(2);
-            
-            //if(data.features[i].properties.LEGAL_START_DATE = )
+
             if(startYear <= 2010){myNewCell2.style.backgroundColor = 'yellow'}
-            // Assign color using if statements 
-            // if(data[i].generation_gwh_2019 > 39.7 ){ myNewCell2.style.backgroundColor = 'yellow'}
-            // if(data[i].generation_gwh_2019 <= 39.7 ){ myNewCell2.style.backgroundColor = 'grey'}
-            
-            // Assign color using a function 
-            // myNewCell2.style.backgroundColor = getBackgroundColor(data[i].generation_gwh_2019)
-        
-            //Assign color using class
-            // myNewCell2.className = getClassName(data[i].generation_gwh_2019)
-        
+
             myNewRow.append(myNewCell1);
             myNewRow.append(myNewCell2);
             myNewRow.append(myNewCell3);
