@@ -54,7 +54,14 @@ crossorigin=""></script>
                     "gray blue" ;
     }
 
-    var geojson = L.geoJSON(data, {style: myStyle}).addTo(map); // the entire geojson is displayed
+    var geojson = L.geoJSON(data, {style: myStyle}) // add custom labels to polygons?
+    .bindPopup(
+        "<b>BID Info</b></br>" +
+        "Name: " + feature.properties.DISTRICT_NAME + "<br>" +
+        "Start Date: " + feature.properties.LEGAL_START_DATE + "<br>" +
+        "Contact: " + feature.properties.CONTACT
+    )
+   .addTo(map); // the entire geojson is displayed
 
 
     var myCurrentSelectionYear = 1987 // the initial year to start the data

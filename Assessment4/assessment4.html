@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment 4</title>
+</head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<script src="./denverBID.js"></script>
+<style>
+    #container {
+            display: flex;
+            width: 100vw;
+            height: 375px;
+            padding: 5px;
+        }
+    #map { height: 350px;
+    width: 50% }
+    #info {
+        border: 1px solid black;
+        display: flex;
+        align-items: flex-end;
+        height: 350px;
+        width: 50%;
+    background-color: white;}
+
+    .column {
+            width: 10%;
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            background-color: gray;
+            border: 1px solid black;
+        }
+
+        table {
+          font-family: 'Open Sans', sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+          border-radius: 8px; 
+          overflow: auto; 
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1,h2,h3 {
+          font-family: 'Open Sans', sans-serif;
+        }
+
+        td, th {
+          font-family: 'Open Sans', sans-serif;
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 3;
+          font-size: 12px;
+        }
+
+        td {
+          font-size: 10px;
+        }
+
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+
+        tr.selected {
+          background-color: yellow;
+        }
+
+</style>
+<body style="background-color: antiquewhite;">
+    <h1>Assessment 4</h1>
+    <h3>Sam Metcalf - GEOG456 2/27/25</h3>
+    <h2>Business Improvement Districts in Denver, Colorado</h2>
+    <div id="container">
+        <div id="map"></div>
+        <div id="info">
+            <table id="mytable">
+                <tr>
+                  <th>Business Improvement District</th>
+                  <th>Start Year</th>
+                  <th>Contact Name</th>
+                  <th>Email</th>
+                </tr>
+              </table>
+        </div>
+    </div>
+    <a href="https://data.colorado.gov/Economic-Growth/Map-of-Business-Improvement-Districts-Denver/pkue-zrfg">Data Source</a>
+    <a href="../index.html">back</a>
+</body>
+<script>
+var map = L.map('map', {attributionControl: false }).setView([39.74290304054884, -104.99199388006102], 12);        
+        var OpenStreetMap_Mapnik = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        opacity: .5,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // sorting the data based on total population
+        data.features.sort(function(a, b) {
+          return b.properties.LEGAL_START_DATE.substring(12, 17) - a.properties.LEGAL_START_DATE.substring(12, 17);
+      });
+
+            
+        function style(feature) {
+            return {
+                    fillColor: 'aqua',
+                    weight: 2,
+                    opacity: 1,
+                    color: 'white',
+                    fillOpacity: 0.7
+                };
+            }
+
+function onEachFeature(feature, layer) {
+    layer.on({mouseover: addInformation})
+}
+
+var myInfo = document.getElementById('info')
+
+
+var myGeojson = L.geoJson(data, {
+    style: style,
+    onEachFeature: onEachFeature
+}).addTo(map);
+
+var x = document.getElementById('mytable')
+function makeCell(e) {
+      
+    var myNewRow = document.createElement('tr');
+    var bidName = e.OBJECTID // creates the variable country based on the property NAME
+    myNewRow.className = "object" + bidName; // assings the name of the county as a class. 
+    var myNewCell1 = document.createElement('td');
+    var myNewCell2 = document.createElement('td');
+    var myNewCell3 = document.createElement('td');
+    var myNewCell4 = document.createElement('td');
+
+    myNewCell1.innerHTML = e.DISTRICT_NAME;
+    myNewCell2.innerHTML = e.LEGAL_START_DATE.substring(12, 17);
+    myNewCell3.innerHTML = e.CONTACT;
+  
+    // creating link
+    var link = document.createElement('a');
+    link.href = "mailto:" + e.CONTACT_EMAIL;
+    link.textContent = e.CONTACT_EMAIL;
+    link.target = "_blank";
+    myNewCell4.appendChild(link);
+
+    myNewRow.append(myNewCell1);
+    myNewRow.append(myNewCell2);
+    myNewRow.append(myNewCell3);
+    myNewRow.append(myNewCell4);
+    x.append(myNewRow);
+
+  } // The loop ends 
+ 
+function selectColorByValue(value){
+            if (value > 5000) {return 'pink'}
+            if (value >0 ) {return 'yellow'}
+        }
+
+function addInformation(e) {
+  document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected')); // this line finds the rows that have the class 'selected' and removes the class selected
+  var county = '.object' + e.target.feature.properties.OBJECTID; // this lines creates a text like '.Wake' for the case of Wake County 
+  console.log(county)
+  document.querySelectorAll(county).forEach(el => el.classList.add('selected')); // looks for the county name based on class and assigns the class selected
+}
+
+// making the table
+data.features.forEach(e=> makeCell(e.properties))
+
+
+</script>   
+</html>
