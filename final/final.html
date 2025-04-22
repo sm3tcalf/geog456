@@ -3,30 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HW4b</title>
-</head>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-crossorigin=""></script>
-<script src="./homeData.js"></script>
-<style>
-    #map { 
-        width: 80%;
-        margin: auto;  
-        height: 800px;
-    }
+    <title>Final Project</title>
+
+    <!-- leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    
+    <!-- marker clustering -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js'></script>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css' rel='stylesheet' />
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css' rel='stylesheet' />
+
+    <!-- clustering subgroups -->
+    <script src="leaflet.featuregroup.subgroup.js"></script>
+
+    <!-- variables -->
+    <script src="./homeDataFixed.js"></script>
+    <script src="./neighborhoodDataFixed.js"></script>
+
+    <style>
+        #map { 
+            width: 80%;
+            margin: auto;  
+            height: 800px;
+        }
 
 </style>
+</head>
 <body style="background-color: powderblue;">
     <h1>Final Project</h1>
     <h2>Sam Metcalf - GEOG456 2/27/25</h2>
     <br>
-    <h2>Measuring gentrification and new construction patterns in Denver, Colorado</h2>
+    <h2>Measuring patterns of new construction in relation to home values by neighborhood in Denver, Colorado</h2>
     <br>
+    <div class="slidecontainer">
+        <input type="range" min="2012" max="2024" value="2012" class="slider" id="myRange">
+         Date: <span id="demo"></span>
+    </div>
+    <br> 
+    <div id="map"></div>
+
     <a href="">Data Source</a>
     <a href="../index.html">back</a>
 </body>
+<script>
+
+    var map = L.map('map').setView([39.73, -104.99], 13);
+
+    
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    }).addTo(map);
+
+    var geojsonMarkerOptions = {
+    radius: 8,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+    };
+
+    var myStyle = {
+    "color": "#ff7800",
+    "opacity": 0.65
+    };
+
+    var homeDataMap = L.geoJson(homeData, {
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkerOptions);
+    }
+})
+
+    // ******** SLIDER ********
+
+const slider = document.getElementById("myRange");
+const output = document.getElementById("demo");
+
+slider.addEventListener("input", function () {
+    const selectedYear = this.value;
+    output.textContent = selectedYear;
+
+    // 1. Update clustered markers
+    showOnlyYear(selectedYear);
+
+    // 2. Update choropleth map
+    updateChoropleth(selectedYear);
+});
+
+    // see https://github.com/ghybs/Leaflet.FeatureGroup.SubGroup?tab=readme-ov-file#readme for info on how to dynamically add/remove cluster points w/ slider
+    // Declare master cluster group and add it to the map
+const masterClusterGroup = L.markerClusterGroup();
+map.addLayer(masterClusterGroup);
+
+// Create an object to hold subgroups for each year
+const yearSubGroups = {};
+
+// Loop through the homeData features
+for (let i = 0; i < homeData.features.length; i++) {
+    const feature = homeData.features[i];
+    const coords = feature.geometry.coordinates;
+    const title = feature.properties.VALUATION;
+    const year = feature.properties.DATE_fixed.slice(0, 4); // Make sure this is a 4-digit year
+
+    const marker = L.marker([coords[1], coords[0]], { title: title })
+                    .bindPopup(`${title}`);
+
+    // If this year doesn't exist yet, create a new subgroup for it
+    if (!yearSubGroups[year]) {
+        yearSubGroups[year] = L.featureGroup.subGroup(masterClusterGroup);
+        map.addLayer(yearSubGroups[year]); // Optional: you can add/remove with layer control instead
+    }
+
+    // Add the marker to the correct year subgroup
+    yearSubGroups[year].addLayer(marker);
+}
+
+// Create a control layer so users can toggle different years
+const overlayMaps = {};
+for (const year in yearSubGroups) {
+    overlayMaps[year] = yearSubGroups[year];
+}
+L.control.layers(null, overlayMaps).addTo(map);
+
+let animationInterval = null;
+let isPlaying = false;
+
+// Get list of years from the yearSubGroups keys and sort them
+const allYears = Object.keys(yearSubGroups).sort();
+let currentYearIndex = 0;
+
+// Function to show only one year's markers at a time
+function showOnlyYear(year) {
+    // First remove all subgroups
+    for (const y of allYears) {
+        map.removeLayer(yearSubGroups[y]);
+    }
+
+    // Then add only the selected year
+    if (yearSubGroups[year]) {
+        map.addLayer(yearSubGroups[year]);
+    }
+
+    // Also update slider and text if you'd like
+    slider.value = year;
+    output.innerText = year;
+}
+
+// ==================================
+// chorpleth map for neighborhoodData
+// ==================================
+
+const availableYears = Object.keys(neighborhoodData.features[0].properties)
+  .filter(key => key.includes("_12_31")) // just using end-of-year data
+  .map(key => key.match(/F(\d{4})_12_31/)[1])
+  .sort(); // gives ["2011", "2012", ..., "2025"]
+
+function getValueForYear(props, year) {
+  const key = `F${year}_01_31`;
+  return props[key];
+}
+
+function getColor(value) {
+  // Simple example: tweak this for your color scale
+  if (value == null) return '#ccc'; // gray for no data
+  
+  return value > 800000 ? '#800026' :
+         value > 700000 ? '#BD0026' :
+         value > 600000 ? '#E31A1C' :
+         value > 500000 ? '#FC4E2A' :
+         value > 400000 ? '#FD8D3C' :
+         value > 300000 ? '#FEB24C' :
+         value > 200000 ? '#FED976' :
+                          '#FFEDA0';
+}
+
+function style(feature, year) {
+  const value = getValueForYear(feature.properties, year);
+  return {
+    fillColor: getColor(value),
+    weight: 1,
+    opacity: 1,
+    color: 'white',
+    dashArray: '3',
+    fillOpacity: 0.7
+  };
+}
+
+let neighborhoodDataMap = L.geoJSON(neighborhoodData, {
+  style: feature => style(feature, slider.value),
+  onEachFeature: function (feature, layer) {
+    const name = feature.properties["neighborhoodDataFixed.NBRHD_NAME"];
+    const value = getValueForYear(feature.properties, slider.value);
+
+    if (value != null) {
+        layer.bindPopup(`${name}: $${value.toLocaleString()}`);
+    } else {
+        layer.bindPopup(`${name}: No data available`);
+    }
+    }
+}).addTo(map);
+
+function updateChoropleth(year) {
+  neighborhoodDataMap.eachLayer(layer => {
+    const feature = layer.feature;
+    const newStyle = style(feature, year);
+    layer.setStyle(newStyle);
+
+    // Update popup value if open
+    const name = feature.properties["neighborhoodDataFixed.NBRHD_NAME"];
+    const value = getValueForYear(feature.properties, year);
+    if (value != null) {
+    layer.setPopupContent(`${name}: $${value.toLocaleString()}`);
+    } else {
+    layer.setPopupContent(`${name}: No data available`);
+    }
+  });
+}
+
+// ===================================
+// automated play function w/ spacebar
+// ===================================
+
+function playYearAnimation() {
+    if (isPlaying) return;
+
+    isPlaying = true;
+    animationInterval = setInterval(() => {
+        const year = allYears[currentYearIndex];
+
+        // Update markers and choropleth
+        showOnlyYear(year);
+        updateChoropleth(year);
+
+        currentYearIndex++;
+
+        if (currentYearIndex >= allYears.length) {
+            clearInterval(animationInterval);
+            isPlaying = false;
+            currentYearIndex = 0;
+        }
+    }, 1000); // 1 second per year
+}
+document.addEventListener('keydown', function (e) {
+    if (e.code === "Space") {
+        e.preventDefault(); // Prevent page scroll
+        if (!isPlaying) {
+            playYearAnimation();
+        }
+    }
+});
+
+
+</script>   
 </html>
